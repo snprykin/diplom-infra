@@ -102,7 +102,7 @@ resource "yandex_kubernetes_node_group" "diplom-workers" {
     }
 
     metadata = {
-      ssh-keys = "user:${file("/home/user/.ssh/id_ed25519.pub")}"
+      ssh-keys = "user:${file(var.ssh_public_key_file)}"
     }
   }
 

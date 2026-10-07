@@ -28,7 +28,20 @@ jobs:
 
       - name: Write SA key
         run: |
-          echo '${{ secrets.YC_SA_KEY }}' > /tmp/sa-key.json
+          cat > /tmp/sa-key.json <<'EOF'
+          ${{ secrets.YC_SA_KEY }}
+          EOF
+          chmod 600 /tmp/sa-key.json
+          echo "SA key size: $(wc -c < /tmp/sa-key.json) bytes"
+
+      - name: Write SSH public key
+        run: |
+          mkdir -p /tmp/ssh
+          cat > /tmp/ssh/id_ed25519.pub <<'EOF'
+          ${{ secrets.SSH_PUBLIC_KEY }}
+          EOF
+          chmod 600 /tmp/ssh/id_ed25519.pub
+          echo "SSH key size: $(wc -c < /tmp/ssh/id_ed25519.pub) bytes"
 
       - name: Write backend config
         run: |
@@ -36,6 +49,7 @@ jobs:
           access_key = "${{ secrets.YC_SA_KEY_ID }}"
           secret_key = "${{ secrets.YC_SA_SECRET }}"
           EOF
+          cat backend.conf
 
       - name: Terraform Init
         run: terraform init -backend-config=backend.conf
@@ -44,3 +58,4 @@ jobs:
         run: terraform apply -auto-approve
         env:
           TF_VAR_service_account_key_file: /tmp/sa-key.json
+          TF_VAR_ssh_public_key_file: /tmp/ssh/id_ed25519.pub
