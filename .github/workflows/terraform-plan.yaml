@@ -34,12 +34,22 @@ jobs:
           chmod 600 /tmp/sa-key.json
           echo "SA key size: $(wc -c < /tmp/sa-key.json) bytes"
 
+      - name: Write SSH public key
+        run: |
+          mkdir -p /tmp/ssh
+          cat > /tmp/ssh/id_ed25519.pub <<'EOF'
+          ${{ secrets.SSH_PUBLIC_KEY }}
+          EOF
+          chmod 600 /tmp/ssh/id_ed25519.pub
+          echo "SSH key size: $(wc -c < /tmp/ssh/id_ed25519.pub) bytes"
+
       - name: Write backend config
         run: |
           cat > backend.conf <<EOF
           access_key = "${{ secrets.YC_SA_KEY_ID }}"
           secret_key = "${{ secrets.YC_SA_SECRET }}"
           EOF
+          cat backend.conf
 
       - name: Terraform Init
         run: terraform init -backend-config=backend.conf
@@ -50,8 +60,12 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+        env:
+          TF_VAR_service_account_key_file: /tmp/sa-key.json
+          TF_VAR_ssh_public_key_file: /tmp/ssh/id_ed25519.pub
 
       - name: Terraform Plan
         run: terraform plan -no-color -out=tfplan
         env:
           TF_VAR_service_account_key_file: /tmp/sa-key.json
+          TF_VAR_ssh_public_key_file: /tmp/ssh/id_ed25519.pub

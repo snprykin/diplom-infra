@@ -16,10 +16,10 @@ terraform {
   required_version = ">= 1.0"
 }
 
-variable "service_account_key_file" {
-  description = "Path to Yandex Cloud service account key JSON file"
+variable "ssh_public_key_file" {
+  description = "Path to SSH public key file"
   type        = string
-  default     = "/home/user/.authorized_key.json"
+  default     = "/home/user/.ssh/id_ed25519.pub"
 }
 
 provider "yandex" {
