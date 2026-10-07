@@ -44,7 +44,7 @@ resource "yandex_vpc_security_group" "k8s-sg" {
   }
 
   # Внутренний трафик между нодами K8s
-    # Трафик между нодами
+  # Трафик между нодами
   ingress {
     protocol       = "ANY"
     description    = "Node-to-node communication"
